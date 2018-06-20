@@ -14,6 +14,7 @@ Usage
 ``templates`` is a list of *(dbfile, macros)* tuples. *dbfile* is the database file name and *macros* is a dictionary containing the macro substitution. They are then passed to *load_database_file*.
 
 ::
+
     for dbfile, macros in templates:
         database = load_database_file(dbfile, macros)
         print(database)
