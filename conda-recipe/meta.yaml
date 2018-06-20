@@ -1,0 +1,31 @@
+package:
+  name: dbtoolspy
+  version: 1.0.0
+
+source:
+  path: ..
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - python
+
+build:
+    noarch_python: True
+
+test:
+  requires:
+    - python
+
+  commands:
+    - python -m dbtoolspy.tokenizer # [not py2k]
+    - python -m dbtoolspy.macro # [not py2k]
+
+about:
+  home: https://github.com/paulscherrerinstitute/dbtoolspy
+  license: BSD License
+  summary: 'Python Module to Read EPICS Database'
+
