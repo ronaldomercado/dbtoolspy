@@ -72,3 +72,10 @@ Tools
 
 dbiocdiff.py
   It compares the configured field values with the IOC runtime values and reports the difference.
+
+
+Limitations
+-----------
+
+* In the substitution file, the template file name cannot contain macros.
+* It is stricter when treating valid characters in bare words. Quote them in case of *TokenException*. 
