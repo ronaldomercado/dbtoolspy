@@ -1,8 +1,11 @@
 from __future__ import print_function
-#from __future__ import unicode_literals
 
-import io
 import re
+import sys
+if sys.hexversion < 0x03000000:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 from .tokenizer import tokenizer
 
@@ -42,7 +45,7 @@ def macSplit(macro_string):
     >>> print(macSplit('a=1,b="2",c,d=\\'hello\\''))
     {'a': '1', 'b': '2', 'd': 'hello'}
     """
-    src = tokenizer(io.StringIO(macro_string))
+    src = tokenizer(StringIO(macro_string))
     
     macros = {}
     name = value = None

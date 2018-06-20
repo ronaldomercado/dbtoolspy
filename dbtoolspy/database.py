@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 from __future__ import print_function
-#from __future__ import unicode_literals
 
-import os
-import io
 import collections
+import os
+import sys
+if sys.hexversion < 0x03000000:
+    from StringIO import StringIO
+    open_file = lambda filename, encoding: open(filename)
+else:
+    from io import StringIO
+    open_file = open
 import warnings
 
 from .tokenizer import tokenizer
@@ -87,51 +92,51 @@ class Database(collections.OrderedDict):
             self.add_record(record)
  
 
-def parse_pair(next):
+def parse_pair(src):
     """
     parse '(field, "value")' definition to tuple (field, value)
     """
-    token = next()
+    token = next(src)
     if token != '(':
         return None, None
-    token = next()
+    token = next(src)
     field = token
-    token = next()
+    token = next(src)
     if token == ')':
         return field, None
     elif token != ',':
         return None, None
-    token = next()
+    token = next(src)
     value = token
-    token = next()
+    token = next(src)
     if token != ')':
         return None, None
     return field, value
 
 
-def parse_record(next):
+def parse_record(src):
     """
-    :param func next: token generator function
+    :param iter src: token generator
     """
     record = Record()
 
-    record.rtyp, record.name = parse_pair(next)
+    record.rtyp, record.name = parse_pair(src)
 
-    token = next()
+    token = next(src)
     while True:
         if token == '}':
             break
 
         elif token == 'field':
-            field, value = parse_pair(next)
+            field, value = parse_pair(src)
             record.fields[field] = value
         elif token == 'info':
-            field, value = parse_pair(next)
+            field, value = parse_pair(src)
             record.infos[field] = value
         elif token == 'alias':
-            record.aliases.append(parse_pair(next))
+            record.aliases.append(parse_pair(src))
 
-        token = next()
+        token = next(src)
 
     return record
 
@@ -146,7 +151,7 @@ def find_database_file(filename, includes):
     return filename
 
 
-def load_database_file(filename, macros=None, includes=[]):
+def load_database_file(filename, macros=None, includes=[], encoding='utf8'):
     """
     :param str filename: EPICS database filename
     :return: list of record dict
@@ -161,7 +166,7 @@ def load_database_file(filename, macros=None, includes=[]):
     lineno = 1
     lines = []
     failed = False
-    for line in open(filename):
+    for line in open_file(filename, encoding=encoding):
         if macros is not None:
             expanded, unmatched = macExpand(line, macros)
             if unmatched:
@@ -179,22 +184,22 @@ def load_database_file(filename, macros=None, includes=[]):
     
     if failed:
         return database
-    
+
     # parse record instances
-    next = iter(tokenizer(io.StringIO(''.join(lines)), filename)).next
+    src = iter(tokenizer(StringIO(''.join(lines)), filename))
     while True:
         try:
-            token = next()
+            token = next(src)
         except StopIteration:
             break
 
         if token == 'record':
-            database.add_record(parse_record(next))
+            database.add_record(parse_record(src))
         elif token == 'alias':
-            record_name, alias_name = parse_pair(next)
+            record_name, alias_name = parse_pair(src)
             records[alias_name] = records[record_name]
         elif token == 'include':
-            inclusion = next()
+            inclusion = next(src)
             extended_includes = set(includes)
             extended_includes.add(os.path.dirname(filename))
             for record in load_database_file(inclusion, macros, extended_includes).values():
@@ -209,6 +214,16 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--macro',
             help='macro substitution')
     parser.add_argument(
+            '-I',
+            action = 'append',
+            dest = 'includes',
+            default = [],
+            help = 'template include paths')
+    parser.add_argument(
+            '--encoding',
+            default='utf8',
+            help = 'files encoding')
+    parser.add_argument(
             dest = 'database_files',
             nargs = '+',
             help='database files')
@@ -220,5 +235,5 @@ if __name__ == '__main__':
 
     for file in args.database_files:
         if os.path.exists(file):
-            database = load_database_file(file, macros)
+            database = load_database_file(file, macros, includes=args.includes, encoding=args.encoding)
             print(database) 

@@ -36,6 +36,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rtyps',
             help='record types separated by ",". (default: all)')
+    parser.add_argument('--encoding', default='utf8',
+            help = 'files encoding (default: utf8)')
     parser.add_argument('subs',
             help='substitute file')
     args = parser.parse_args()
@@ -48,8 +50,8 @@ if __name__ == '__main__':
     subs = os.path.expanduser(args.subs)
 
     db = Database()
-    for filename, macros in load_template_file(subs):
-        db.update(load_database_file(filename, macros, [os.path.dirname(subs)]))
+    for filename, macros in load_template_file(subs, args.encoding):
+        db.update(load_database_file(filename, macros, [os.path.dirname(subs)], args.encoding))
    
     # print output as table
     printer = TablePrinter(30, 15, 15)

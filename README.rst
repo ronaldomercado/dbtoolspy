@@ -28,6 +28,15 @@ Usage
 Reference
 ---------
 
+load_template_file takes the following argument:
+
+   subsfile
+     Substitution file.
+
+   encoding
+     (Optional) File encoding. (default utf-8)
+
+
 load_database_file takes the following argument:
 
    dbfile
@@ -38,6 +47,10 @@ load_database_file takes the following argument:
 
    includes
      (Optional) Extra include paths for database files.
+
+   encoding
+     (Optional) File encoding. (default utf-8)
+
 
 Record has the following attibutes:
 

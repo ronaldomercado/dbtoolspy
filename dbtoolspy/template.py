@@ -1,26 +1,26 @@
 from __future__ import print_function
-#from __future__ import unicode_literals
+import sys
 
 from .tokenizer import tokenizer
 
-def parse_filename(next):
+def parse_filename(src):
     filename = None
 
-    token = next()
+    token = next(src)
     while True:
         if token == '{':
             break
         filename = token
 
-        token = next()
+        token = next(src)
 
     return filename
 
 
-def parse_pattern_macros(next):
+def parse_pattern_macros(src):
     macros = []
 
-    token = next()
+    token = next(src)
     while True:
         if token == '}':
             break
@@ -28,15 +28,15 @@ def parse_pattern_macros(next):
         if token != ',':
             macros.append(token)
 
-        token = next()
+        token = next(src)
 
     return macros
 
 
-def parse_pattern_values(next):
+def parse_pattern_values(src):
     values = []
 
-    token = next()
+    token = next(src)
     while True:
         if token == '}':
             break
@@ -44,17 +44,17 @@ def parse_pattern_values(next):
         if token != ',':
             values.append(token)
 
-        token = next()
+        token = next(src)
 
     return values
 
 
-def parse_macro_value(next):
+def parse_macro_value(src):
     macros = []
     values = []
     
     equal = False
-    token = next()
+    token = next(src)
     while True:
         if token == '}':
             break
@@ -70,7 +70,7 @@ def parse_macro_value(next):
             else:
                 macros.append(token)
 
-        token = next()
+        token = next(src)
 
     return macros, values
 
@@ -82,24 +82,24 @@ SUBS = 4
 
 def parse_template(source):
     """
-    :param str source: EPICS substitutes
+    :param buffer source: EPICS substitutes
     :return: list of (filename, macros, values)
     """
     files = []
 
-    next = iter(tokenizer(source)).next
+    src = iter(tokenizer(source))
 
     global_macros = {}
     saved_state = state = NEUTRAL
     macros = values = None
     while True:
         try:
-            token = next()
+            token = next(src)
         except StopIteration:
             break
         if state == NEUTRAL:
             if token == 'file':
-                filename = parse_filename(next)
+                filename = parse_filename(src)
                 macros = values = None
                 local_global_macros = {}
                 saved_state = state
@@ -116,13 +116,13 @@ def parse_template(source):
                 state = PATTERN
             elif token == '{':
                 if macros is None:
-                    macros, values = parse_macro_value(next)
+                    macros, values = parse_macro_value(src)
                     d = dict(zip(macros, values))
                     d.update(local_global_macros)
                     files.append((filename, d))
                     macros = values = None
                 else:
-                    values = parse_pattern_values(next)
+                    values = parse_pattern_values(src)
                     d = dict(zip(macros, values))
                     d.update(local_global_macros)
                     files.append((filename, d))
@@ -131,11 +131,11 @@ def parse_template(source):
                 state = NEUTRAL
         elif state == PATTERN:
             if token == '{':
-                macros = parse_pattern_macros(next)
+                macros = parse_pattern_macros(src)
                 state = saved_state
         elif state == GLOBAL:
             if token == '{':
-                macros, values = parse_macro_value(next)
+                macros, values = parse_macro_value(src)
                 if saved_state == FILE:
                     local_global_macros.update(zip(macros, values)) 
                 else:
@@ -146,8 +146,11 @@ def parse_template(source):
     return files
 
 
-def load_template_file(file):
-    return parse_template(open(file))
+def load_template_file(filename, encoding='utf8'):
+    if sys.hexversion < 0x03000000:
+        return parse_template(open(filename))
+    else:
+        return parse_template(open(filename, encoding=encoding))
 
 
 if __name__ == '__main__':
@@ -156,15 +159,29 @@ if __name__ == '__main__':
     import os
     parser = argparse.ArgumentParser()
     parser.add_argument(
+            '-I',
+            action = 'append',
+            dest = 'includes',
+            help = 'template include paths')
+    parser.add_argument(
+            '--encoding',
+            default='utf8',
+            help = 'files encoding')
+    parser.add_argument(
             dest = 'substitution_files',
             nargs = '+',
             help='substitution files')
     args = parser.parse_args()
 
-
     db = Database()
     for subs_file in args.substitution_files:
         if os.path.exists(subs_file):
-            for db_file, macros in load_template_file(subs_file):
-                db.update(load_database_file(db_file, macros, includes=[os.path.dirname(subs_file)]))
+            includes = [os.path.dirname(subs_file)]
+            if args.includes:
+                includes.extend(args.includes)
+            for db_file, macros in load_template_file(subs_file, args.encoding):
+                db.update(load_database_file(
+                    db_file,
+                    macros,
+                    includes=includes))
     print(db)

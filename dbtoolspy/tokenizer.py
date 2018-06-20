@@ -1,8 +1,11 @@
 from __future__ import print_function
-#from __future__ import unicode_literals
 
 import re
-from io import StringIO
+import sys
+if sys.hexversion < 0x03000000:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 __all__ = ['tokenizer']
 
