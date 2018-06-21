@@ -193,7 +193,7 @@ def load_database_file(filename, macros=None, includes=[], encoding='utf8'):
         except StopIteration:
             break
 
-        if token == 'record':
+        if token == 'record' or token == 'grecord':
             database.add_record(parse_record(src))
         elif token == 'alias':
             record_name, alias_name = parse_pair(src)
