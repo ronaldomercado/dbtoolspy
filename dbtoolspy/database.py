@@ -235,5 +235,5 @@ if __name__ == '__main__':
 
     for file in args.database_files:
         if os.path.exists(file):
-            database = load_database_file(file, macros, includes=args.includes, encoding=args.encoding)
+            database = load_database_file(file, macros, args.includes, args.encoding)
             print(database) 
