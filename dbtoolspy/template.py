@@ -91,7 +91,6 @@ def parse_template(source):
 
     global_macros = {}
     saved_state = state = NEUTRAL
-    macros = values = None
     while True:
         try:
             token = next(src)
@@ -100,8 +99,8 @@ def parse_template(source):
         if state == NEUTRAL:
             if token == 'file':
                 filename = parse_filename(src)
-                macros = values = None
-                local_global_macros = {}
+                pattern_macros = None
+                file_global_macros = {}
                 saved_state = state
                 state = FILE
             elif token == 'global':
@@ -115,29 +114,27 @@ def parse_template(source):
                 saved_state = state
                 state = PATTERN
             elif token == '{':
-                if macros is None:
+                if pattern_macros is None:
                     macros, values = parse_macro_value(src)
-                    d = dict(zip(macros, values))
-                    d.update(local_global_macros)
-                    files.append((filename, d))
-                    macros = values = None
                 else:
-                    values = parse_pattern_values(src)
-                    d = dict(zip(macros, values))
-                    d.update(local_global_macros)
-                    files.append((filename, d))
+                    macros, values = pattern_macros, parse_pattern_values(src)
+                d = {}
+                d.update(global_macros)
+                d.update(file_global_macros)
+                d.update(zip(macros, values))
+                files.append((filename, d))
             elif token == '}':
                 saved_state = state
                 state = NEUTRAL
         elif state == PATTERN:
             if token == '{':
-                macros = parse_pattern_macros(src)
+                pattern_macros = parse_pattern_macros(src)
                 state = saved_state
         elif state == GLOBAL:
             if token == '{':
                 macros, values = parse_macro_value(src)
                 if saved_state == FILE:
-                    local_global_macros.update(zip(macros, values)) 
+                    file_global_macros.update(zip(macros, values)) 
                 else:
                     global_macros.update(zip(macros, values))
                 macros = values = None
