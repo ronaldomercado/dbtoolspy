@@ -33,7 +33,7 @@ class Record(object):
         self.aliases = []
 
     def __bool__(self):
-        return self.name != None and self.rtype != None
+        return self.name != None and self.rtyp != None
 
     def __repr__(self):
         repr = 'record ({0}, "{1}")\n'.format(self.rtyp, self.name)
