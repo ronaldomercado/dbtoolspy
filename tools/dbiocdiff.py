@@ -52,7 +52,7 @@ if __name__ == '__main__':
     db = Database()
     for filename, macros in load_template_file(subs, args.encoding):
         db.update(load_database_file(filename, macros, [os.path.dirname(subs)], args.encoding))
-   
+
     # print output as table
     printer = TablePrinter(30, 15, 15)
     printer.print_line('channel', 'IOC', 'database')
@@ -93,8 +93,8 @@ if __name__ == '__main__':
             if ftype == ca.DBF_STRING:
                 # remove "NPP" "NMS" from known link fields
                 if re.match(r'SDIS|FLNK|SIOL|SIML|RDBL|RLNK|DINP|RINP|STOO|NVL|SELL|DOL\d?|LNK[1-9A]|OUT[A-U]?|INP[A-U]?|IN([A-L])\1', field):
-                    actual_value = re.sub('( NPP| NMS)', '', actual_value).strip()
-                    config_value = re.sub('( NPP| NMS)', '', config_value).strip()
+                    actual_value = re.sub(' +', ' ', re.sub(' +(NPP|NMS)', '', actual_value)).strip()
+                    config_value = re.sub(' +', ' ', re.sub(' +(NPP|NMS)', '', config_value)).strip()
                 # capitialize calc expressions
                 elif re.match(r'(CALC|OCAL|CLC[A-P])', field) and record.rtyp in ['calc', 'calcout']:
                     config_value = config_value.upper()
@@ -110,7 +110,11 @@ if __name__ == '__main__':
                 # convert to float for all other numeric types
                 config_value = float(config_value)
 
-            if actual_value != config_value:
+            if isinstance(config_value, float):
+                if abs(actual_value - config_value) > 1e-9:
+                    all_consistent = False
+                    printer.print_line(chan.name(), actual_value, record.fields[field])
+            elif actual_value != config_value:
                 all_consistent = False
                 printer.print_line(chan.name(), actual_value, record.fields[field])
 
