@@ -10,7 +10,10 @@ python:
 install:
   - pip install twine;
   - pip install -e .
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then
+  - if [[ $travis_python_version == '2.6' ]]; then
+      pip install ordereddict
+    fi
+  - if [[ $travis_python_version == '2.7' ]]; then
       python setup.py sdist bdist_wheel;
     fi
 
