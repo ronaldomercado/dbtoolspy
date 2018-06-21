@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - "2.6"
   - "2.7"
   - "3.4"
   - "3.5"
@@ -10,9 +9,6 @@ python:
 install:
   - pip install twine;
   - pip install -e .
-  - if [[ $travis_python_version == '2.6' ]]; then
-      pip install ordereddict;
-    fi
   - if [[ $travis_python_version == '2.7' ]]; then
       python setup.py sdist bdist_wheel;
     fi
