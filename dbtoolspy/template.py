@@ -183,5 +183,6 @@ if __name__ == '__main__':
                 db.update(load_database_file(
                     db_file,
                     macros,
-                    includes=includes))
+                    includes,
+                    args.encoding))
     print(db)
