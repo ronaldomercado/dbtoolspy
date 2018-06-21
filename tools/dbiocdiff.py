@@ -102,7 +102,8 @@ if __name__ == '__main__':
             elif ftype == ca.DBF_ENUM:
                 # convert the actual value to the same choice string as the configured value
                 if not config_value.isdigit():
-                    actual_value = dbr['pv_statestrings'][actual_value]
+                    if actual_value < len(dbr['pv_statestrings']):
+                        actual_value = dbr['pv_statestrings'][actual_value]
                 else:
                     config_value = int(config_value)
             else:

@@ -21,8 +21,8 @@ test:
     - python
 
   commands:
-    - python -m dbtoolspy.tokenizer # [not py2k]
-    - python -m dbtoolspy.macro # [not py2k]
+    - python -m dbtoolspy.tokenizer
+    - python -m dbtoolspy.macro
 
 about:
   home: https://github.com/paulscherrerinstitute/dbtoolspy
