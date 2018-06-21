@@ -1,0 +1,23 @@
+# global macros
+global {
+    AA = aa
+    BB = bb
+}
+
+file test.template {
+pattern
+{ P        R  }
+{ MTEST:   AO1}
+{ MTEST:   AO2}
+}
+
+file test.template {
+# file global macros
+global {
+    P = MTEST:
+}
+# local overrides global
+{ R = AO3, AA = AA }
+{ R = AO4  BB = BB }
+
+}
