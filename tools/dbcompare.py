@@ -36,10 +36,10 @@ def reportRemaining(r, db,  dbname='first'):
     dbname - use 'first' or 'second' for the output message.
     """
     if r is not None:
-        print("Record %s missing in %s (%s)" % (dbname,r[0]))
+        print("Record %s missing in %s db" % (r[0], dbname))
     elem = getElem(db)
     while elem:
-        print("Record %s missing in %s (%s)" % (dbname,elem[0]))
+        print("Record %s missing in %s db" % (elem[0], dbname))
         elem = getElem(db)
 
 def reportMissingFields(f, rec,recname="first"):
