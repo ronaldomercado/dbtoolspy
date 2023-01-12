@@ -86,7 +86,10 @@ Tools
 dbiocdiff.py
   It compares the configured field values with the IOC runtime values and reports the difference.
 
+dbcompare.py
+  Compares two expanded databases and reports the difference.
 
+  
 Limitations
 -----------
 
