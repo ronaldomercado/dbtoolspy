@@ -80,8 +80,9 @@ def recCompare(rec1,rec2):
         if both_exist:
             if f1[0] == f2[0]:
                 if f1[1] != f2[1]:
-                    print("Mismatch in Record %s" % r1.name )
-                    announce = True
+                    if not announce:
+                        print("Mismatch in Record %s" % r1.name )
+                        announce = True
                     print("  Field values mismatch %s" % f1[0])
                     print("    val1 %s" % f1[1])
                     print("    val2 %s" % f2[1])
