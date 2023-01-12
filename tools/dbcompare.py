@@ -151,8 +151,6 @@ def dbcompare(path1, path2, nofields=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--encoding', default='utf8',
-            help = 'files encoding (default: utf8)')
     parser.add_argument('-n','--nofields', action='store_true',
             help = 'no field mismatches reporting')
     parser.add_argument('db1',
