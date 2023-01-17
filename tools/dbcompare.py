@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-This script loads two sets of records from substitution files
+This script loads two sets of records from expanded databases
 and compares them
 
 """
@@ -51,7 +51,7 @@ def reportMissingFields(f, rec,recname="first"):
         print("  Field %s missing in %s record" % (f[0], recname))
     elem = getElem(rec.fields)
     while elem:
-        print("  Field %s missing in %s Record" % (elem[0], recname))
+        print("  Field %s missing in %s record" % (elem[0], recname))
         elem = getElem(rec.fields)
 
 def fieldsort(rec):
@@ -81,7 +81,7 @@ def recCompare(rec1,rec2):
             if f1[0] == f2[0]:
                 if f1[1] != f2[1]:
                     if not announce:
-                        print("Mismatch in Record %s" % r1.name )
+                        print("Mismatch in record %s" % r1.name )
                         announce = True
                     print("  Field values mismatch %s" % f1[0])
                     print("    val1 %s" % f1[1])
@@ -90,13 +90,13 @@ def recCompare(rec1,rec2):
                 f2 = getElem(r2.fields)
             elif f1[0] < f2[0]:
                 if not announce:
-                    print("Mismatch in Record %s" % r1.name )
+                    print("Mismatch in record %s" % r1.name )
                     announce = True
                 print("  Field %s missing in second record" % f1[0])
                 f1 = getElem(r1.fields)
             else:
                 if not announce:
-                    print("Mismatch in Record %s" % r1.name )
+                    print("Mismatch in record %s" % r1.name )
                     announce = True
                 print("  Field %s missing in first record" % f2[0])
                 f2 = getElem(r2.fields)
